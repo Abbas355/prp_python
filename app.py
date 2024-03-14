@@ -1,23 +1,21 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+# Import necessary libraries
+import streamlit as st
 import nltk
 from nltk.corpus import wordnet
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import random
 
-app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
-
-# # Download NLTK resources and initialize stopwords
-# nltk.download()
+# Download NLTK resources
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('averaged_perceptron_tagger')
 
+# Initialize stopwords
 stop_words = stopwords.words("english")
 
+# Function to remove plagiarism
 def plagiarism_remover(word):
     synonyms = []
     if word in stop_words:
@@ -43,22 +41,26 @@ def plagiarism_remover(word):
     else:
         return random.choice(final_synonyms)
 
-@app.route('/', methods=['GET'])
-def remove_plagiarism():
-    pr_text = request.args.get('pr_text')
-    if pr_text is not None:
-        pr_text = pr_text.strip()
-        para_split = word_tokenize(pr_text)
-        final_text = []
-        for i in para_split:
-            final_text.append(plagiarism_remover(i))
-        result_text = " ".join(final_text)
-        response = {'result': result_text}
-        
-        # response = {'result': para_split}
-    else:
-        response = {'error': 'No "pr_text" parameter provided in the query string.'}
-    return jsonify(response)
+# Streamlit app
+def main():
+    st.title("Plagiarism Remover")
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    # Input text
+    pr_text = st.text_area("Enter your text here:")
+
+    # Button to process text
+    if st.button("Remove Plagiarism"):
+        if pr_text is not None:
+            pr_text = pr_text.strip()
+            para_split = word_tokenize(pr_text)
+            final_text = []
+            for i in para_split:
+                final_text.append(plagiarism_remover(i))
+            result_text = " ".join(final_text)
+            st.write("Processed Text:")
+            st.write(result_text)
+        else:
+            st.error('No text provided.')
+
+if __name__ == "__main__":
+    main()
