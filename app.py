@@ -1,10 +1,12 @@
-# Import necessary libraries
-import streamlit as st
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import nltk
 from nltk.corpus import wordnet
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import random
+
+app = FastAPI()
 
 # Download NLTK resources
 nltk.download('stopwords')
@@ -41,26 +43,21 @@ def plagiarism_remover(word):
     else:
         return random.choice(final_synonyms)
 
-# Streamlit app
-def main():
-    st.title("Plagiarism Remover")
+# Define request body model
+class TextRequest(BaseModel):
+    pr_text: str
 
-    # Input text
-    pr_text = st.text_area("Enter your text here:")
-
-    # Button to process text
-    if st.button("Remove Plagiarism"):
-        if pr_text is not None:
-            pr_text = pr_text.strip()
-            para_split = word_tokenize(pr_text)
-            final_text = []
-            for i in para_split:
-                final_text.append(plagiarism_remover(i))
-            result_text = " ".join(final_text)
-            st.write("Processed Text:")
-            st.write(result_text)
-        else:
-            st.error('No text provided.')
-
-if __name__ == "__main__":
-    main()
+# REST API endpoint
+@app.post("/remove_plagiarism")
+async def remove_plagiarism(request: TextRequest):
+    pr_text = request.pr_text
+    if pr_text is not None:
+        pr_text = pr_text.strip()
+        para_split = word_tokenize(pr_text)
+        final_text = []
+        for i in para_split:
+            final_text.append(plagiarism_remover(i))
+        result_text = " ".join(final_text)
+        return {"result": result_text}
+    else:
+        raise HTTPException(status_code=400, detail="No text provided.")
