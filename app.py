@@ -1,63 +1,23 @@
-import streamlit as st
-import nltk
-from nltk.corpus import wordnet
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-import random
-import urllib.parse
+ximport streamlit as st
 
-# Download NLTK resources
-nltk.download('stopwords')
-nltk.download('punkt')
-nltk.download('wordnet')
+def generate_json_response():
+    # Generate JSON response
+    data = {
+        "message": "This is a JSON response from Streamlit!",
+        "result": {
+            "key1": "value1",
+            "key2": "value2",
+            "key3": "value3"
+        }
+    }
+    return data
 
-# Initialize stopwords
-stop_words = stopwords.words("english")
-
-# Function to remove plagiarism
-def plagiarism_remover(word):
-    synonyms = []
-    if word in stop_words:
-        return word
-    if wordnet.synsets(word) == []:
-        return word
-    for syn in wordnet.synsets(word):
-        for lemma in syn.lemmas():
-            synonyms.append(lemma.name())
-    pos_tag_word = nltk.pos_tag([word])
-    pos = []
-    for i in synonyms:
-        pos.append(nltk.pos_tag([i]))
-    final_synonyms = []
-    for i in pos:
-        if pos_tag_word[0][1] == i[0][1]:
-            final_synonyms.append(i[0][0])
-    final_synonyms = list(set(final_synonyms))
-    if final_synonyms == []:
-        return word
-    if word.istitle():
-        return random.choice(final_synonyms).title()
-    else:
-        return random.choice(final_synonyms)
-
-# Streamlit app
 def main():
-    # st.title("Plagiarism Remover")
+    # Generate JSON response
+    json_response = generate_json_response()
 
-    # Input text
-    pr_text = urllib.parse.unquote(st.experimental_get_query_params().get("pr_text", [""])[0])
-    # pr_text = st.text_area("Enter your text here:", default_text)
-
-    # Process text immediately when loaded
-    if pr_text.strip():
-        para_split = word_tokenize(pr_text)
-        final_text = []
-        for i in para_split:
-            final_text.append(plagiarism_remover(i))
-        result_text = " ".join(final_text)
-        # st.write("Processed Text:")
-        # st.write(result_text)
-        st.json(result_text)
+    # Write JSON response
+    st.json(json_response)
 
 if __name__ == "__main__":
     main()
