@@ -1,4 +1,4 @@
-ximport streamlit as st
+import streamlit as st
 
 def generate_json_response():
     # Generate JSON response
