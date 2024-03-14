@@ -42,11 +42,11 @@ def plagiarism_remover(word):
 
 # Streamlit app
 def main():
-    st.title("Plagiarism Remover")
+    # st.title("Plagiarism Remover")
 
     # Input text
-    default_text = urllib.parse.unquote(st.experimental_get_query_params().get("pr_text", [""])[0])
-    pr_text = st.text_area("Enter your text here:", default_text)
+    pr_text = urllib.parse.unquote(st.experimental_get_query_params().get("pr_text", [""])[0])
+    # pr_text = st.text_area("Enter your text here:", default_text)
 
     # Process text immediately when loaded
     if pr_text.strip():
@@ -55,7 +55,7 @@ def main():
         for i in para_split:
             final_text.append(plagiarism_remover(i))
         result_text = " ".join(final_text)
-        st.write("Processed Text:")
+        # st.write("Processed Text:")
         st.write(result_text)
 
 if __name__ == "__main__":
