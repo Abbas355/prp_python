@@ -56,7 +56,8 @@ def main():
             final_text.append(plagiarism_remover(i))
         result_text = " ".join(final_text)
         # st.write("Processed Text:")
-        st.write(result_text)
+        # st.write(result_text)
+        st.json(result_text)
 
 if __name__ == "__main__":
     main()
