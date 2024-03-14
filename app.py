@@ -50,10 +50,11 @@ def main():
         for i in para_split:
             final_text.append(plagiarism_remover(i))
         result_text = " ".join(final_text)
-        data = {
-        "result": result_text
-    }
-        st.json(data)
+        st.write(result_text)
+    #     data = {
+    #     "result": result_text
+    # }
+    #     st.json(data)
 
 if __name__ == "__main__":
     main()
