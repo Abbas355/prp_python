@@ -1,16 +1,15 @@
-# Import necessary libraries
 import streamlit as st
 import nltk
 from nltk.corpus import wordnet
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import random
+import urllib.parse
 
 # Download NLTK resources
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
-nltk.download('averaged_perceptron_tagger')
 
 # Initialize stopwords
 stop_words = stopwords.words("english")
@@ -46,21 +45,18 @@ def main():
     st.title("Plagiarism Remover")
 
     # Input text
-    pr_text = st.text_area("Enter your text here:")
+    default_text = urllib.parse.unquote(st.experimental_get_query_params().get("pr_text", [""])[0])
+    pr_text = st.text_area("Enter your text here:", default_text)
 
-    # Button to process text
-    if st.button("Remove Plagiarism"):
-        if pr_text is not None:
-            pr_text = pr_text.strip()
-            para_split = word_tokenize(pr_text)
-            final_text = []
-            for i in para_split:
-                final_text.append(plagiarism_remover(i))
-            result_text = " ".join(final_text)
-            st.write("Processed Text:")
-            st.write(result_text)
-        else:
-            st.error('No text provided.')
+    # Process text immediately when loaded
+    if pr_text.strip():
+        para_split = word_tokenize(pr_text)
+        final_text = []
+        for i in para_split:
+            final_text.append(plagiarism_remover(i))
+        result_text = " ".join(final_text)
+        st.write("Processed Text:")
+        st.write(result_text)
 
 if __name__ == "__main__":
     main()
