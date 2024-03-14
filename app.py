@@ -1,23 +1,23 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import nltk
 from nltk.corpus import wordnet
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import random
 
-app = FastAPI()
+app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
-# Download NLTK resources
+# # Download NLTK resources and initialize stopwords
+# nltk.download()
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('averaged_perceptron_tagger')
 
-# Initialize stopwords
 stop_words = stopwords.words("english")
 
-# Function to remove plagiarism
 def plagiarism_remover(word):
     synonyms = []
     if word in stop_words:
@@ -43,14 +43,9 @@ def plagiarism_remover(word):
     else:
         return random.choice(final_synonyms)
 
-# Define request body model
-class TextRequest(BaseModel):
-    pr_text: str
-
-# REST API endpoint
-@app.post("/remove_plagiarism")
-async def remove_plagiarism(request: TextRequest):
-    pr_text = request.pr_text
+@app.route('/', methods=['GET'])
+def remove_plagiarism():
+    pr_text = request.args.get('pr_text')
     if pr_text is not None:
         pr_text = pr_text.strip()
         para_split = word_tokenize(pr_text)
@@ -58,6 +53,12 @@ async def remove_plagiarism(request: TextRequest):
         for i in para_split:
             final_text.append(plagiarism_remover(i))
         result_text = " ".join(final_text)
-        return {"result": result_text}
+        response = {'result': result_text}
+        
+        # response = {'result': para_split}
     else:
-        raise HTTPException(status_code=400, detail="No text provided.")
+        response = {'error': 'No "pr_text" parameter provided in the query string.'}
+    return jsonify(response)
+
+if __name__ == '__main__':
+    remove_plagiarism()
